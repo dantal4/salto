@@ -33,7 +33,6 @@ describe('webhookFilter', () => {
   let connection: MockInterface<clientUtils.APIConnection>
   let type: ObjectType
   let instance: InstanceElement
-  let fetchQuery: MockInterface<elementUtils.query.ElementQuery>
 
   beforeEach(async () => {
     const { client: cli, paginator, connection: conn } = mockClient()
@@ -52,15 +51,13 @@ describe('webhookFilter', () => {
       }
     )
 
-    fetchQuery = elementUtils.query.createMockQuery()
-
     config = _.cloneDeep(DEFAULT_CONFIG)
     filter = webhookFilter({
       client,
       paginator,
       config,
       elementsSource: buildElementsSourceFromElements([]),
-      fetchQuery,
+      fetchQuery: elementUtils.query.createMockQuery(),
     }) as filterUtils.FilterWith<'onFetch' | 'deploy' | 'preDeploy' | 'onDeploy'>
 
     connection.get.mockResolvedValue({
@@ -129,15 +126,6 @@ describe('webhookFilter', () => {
           headers: PRIVATE_API_HEADERS,
         },
       )
-    })
-
-    it('should not fetch webhooks if webhooks were excluded', async () => {
-      fetchQuery.isTypeMatch.mockReturnValue(false)
-
-      const elements: Element[] = []
-      await filter.onFetch(elements)
-
-      expect(elements).toEqual([])
     })
 
     it('should use elemIdGetter', async () => {

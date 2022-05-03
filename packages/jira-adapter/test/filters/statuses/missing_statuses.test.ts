@@ -30,22 +30,18 @@ describe('missingStatusesFilter', () => {
   let type: ObjectType
   let mockConnection: MockInterface<clientUtils.APIConnection>
   let config: JiraConfig
-  let fetchQuery: MockInterface<elementUtils.query.ElementQuery>
 
   beforeEach(async () => {
     const { client, paginator, connection } = mockClient()
     mockConnection = connection
 
     config = _.cloneDeep(DEFAULT_CONFIG)
-
-    fetchQuery = elementUtils.query.createMockQuery()
-
     filter = missingStatusesFilter({
       client,
       paginator,
       config,
       elementsSource: buildElementsSourceFromElements([]),
-      fetchQuery,
+      fetchQuery: elementUtils.query.createMockQuery(),
     })
 
     type = new ObjectType({
@@ -61,12 +57,6 @@ describe('missingStatusesFilter', () => {
 
     it('should do nothing if usePrivateAPI is false', async () => {
       config.client.usePrivateAPI = false
-      await filter.onFetch?.([type])
-      expect(mockConnection.get).not.toHaveBeenCalled()
-    })
-
-    it('should do nothing if statuses were excluded', async () => {
-      fetchQuery.isTypeMatch.mockReturnValue(false)
       await filter.onFetch?.([type])
       expect(mockConnection.get).not.toHaveBeenCalled()
     })

@@ -34,7 +34,7 @@ describe('automationFetchFilter', () => {
   let config: JiraConfig
   let client: JiraClient
   let connection: MockInterface<clientUtils.APIConnection>
-  let fetchQuery: MockInterface<elementUtils.query.ElementQuery>
+
 
   beforeEach(async () => {
     const { client: cli, paginator, connection: conn } = mockClient()
@@ -42,15 +42,12 @@ describe('automationFetchFilter', () => {
     connection = conn
 
     config = _.cloneDeep(DEFAULT_CONFIG)
-
-    fetchQuery = elementUtils.query.createMockQuery()
-
     filter = automationFetchFilter({
       client,
       paginator,
       config,
       elementsSource: buildElementsSourceFromElements([]),
-      fetchQuery,
+      fetchQuery: elementUtils.query.createMockQuery(),
     }) as filterUtils.FilterWith<'onFetch'>
 
     projectType = new ObjectType({
@@ -153,19 +150,7 @@ describe('automationFetchFilter', () => {
       )
     })
 
-    it('should not fetch automations if usePrivateApi is false', async () => {
-      config.client.usePrivateAPI = false
-      const elements = [projectInstance]
-      await filter.onFetch(elements)
-
-
-      expect(elements).toHaveLength(1)
-
-      expect(connection.post).not.toHaveBeenCalled()
-    })
-
-    it('should not fetch automations if automations were excluded', async () => {
-      fetchQuery.isTypeMatch.mockReturnValue(false)
+    it('should fetch automations if usePrivateApi is false', async () => {
       config.client.usePrivateAPI = false
       const elements = [projectInstance]
       await filter.onFetch(elements)
