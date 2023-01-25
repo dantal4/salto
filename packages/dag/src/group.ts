@@ -48,9 +48,9 @@ const getComponentWithoutNodesToAvoid = <T>(
     reverse: true,
   })
 
-  const validStartNode = wu(possibleStartNodes).find(id => !componentToAvoid.has(id))
-  return validStartNode !== undefined
-    ? source.getComponent({ roots: [validStartNode], filterFunc: id => currentGroupNodes.has(id) })
+  const validStartNode = wu(possibleStartNodes).filter(id => !componentToAvoid.has(id)).toArray()
+  return validStartNode.length > 0
+    ? source.getComponent({ roots: validStartNode, filterFunc: id => currentGroupNodes.has(id) })
     : undefined
 }
 

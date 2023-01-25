@@ -230,6 +230,27 @@ describe('buildGroupGraph', () => {
         verifyGroupGraphOrder(groupGraph, edges, 3)
       })
 
+      it('should split to minimal number of groups', () => {
+        const groups = {
+          group1: ['a1', 'a2', 'a3', 'a4', 'a5'],
+          group2: ['b1'],
+        }
+
+        const edges: Edge[] = [
+          ['a2', 'a1'],
+          ['a3', 'a1'],
+          ['b1', 'a1'],
+          ['b1', 'a2'],
+          ['b1', 'a3'],
+          ['a4', 'b1'],
+          ['a5', 'a4'],
+        ]
+
+        const [srcGraph, groupKeyFunc] = buildSrcGraphAndGroupKeyFunc(groups, edges)
+        const groupGraph = buildAcyclicGroupedGraph(srcGraph, groupKeyFunc)
+        verifyGroupGraphOrder(groupGraph, edges, 3)
+      })
+
       it('should split groups which contain unrealated cycles', () => {
         const groups = {
           group1: ['n1', 'n2'],
