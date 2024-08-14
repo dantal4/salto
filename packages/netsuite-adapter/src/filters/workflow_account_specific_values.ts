@@ -75,6 +75,15 @@ const FORMULA_PARAMS = 'formulaParams'
 const RESOLVED_ACCOUNT_SPECIFIC_VALUE_PREFIX = `${ACCOUNT_SPECIFIC_VALUE} (`
 const RESOLVED_ACCOUNT_SPECIFIC_VALUE_SUFFIX = ')'
 
+/**
+ * Regex Explanation:
+ * (?<!['"]): Ensures the number is not immediately preceded by a single or double quote.
+ * \b-?\d+\b: Matches a whole number (with an optional minus sign) and word boundaries.
+ * (?!['"]): Ensures the number is not immediately followed by a single or double quote.
+ * (?!\.\d): Ensures the number is not followed by a dot and additional digits, which would indicate it's not a whole number.
+ */
+const FORMULA_INTERNAL_IDS_REGEX = /(?<!['"])\b-?\d+\b(?!['"])(?!\.\d)/g
+
 type QueryRecordField = {
   name: string
   type: string | string[]
@@ -553,7 +562,7 @@ const getParametersAccountSpecificValueToTransform = (
     // not only params with ACCOUNT_SPECIFIC_VALUE are represented with internalid in the formula (e.g roles)
     // but only params that have selectrecordtype are represented with internalid in the formula
     .filter(param => param?.[SELECT_RECORD_TYPE] !== undefined)
-  const internalIds = Array.from(matchAll(formulaWithInternalIds, /-?\d+/g))
+  const internalIds = Array.from(matchAll(formulaWithInternalIds, FORMULA_INTERNAL_IDS_REGEX))
     .map(res => res[0])
     // 0 (zero) can be used in a formula (e.g 'arrayIndexOf(...) < 0'), but it's not an internalid
     .filter(internalId => internalId !== '0')
